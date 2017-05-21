@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Pedidos</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+        <link href="https://fonts.googleapis.com/css?family=Sacramento" rel="stylesheet"/>
+    </h:head>
+    <style>
+        *{
+            font-size: 15px;
+            font-family: arial;
+            color: #333333 !important;
+        }
+        .margem{
+            margin-left: 50px;
+        }
+
+    </style>
+
+    <h:body>
+        <div class="jumbotron" style="background: #FFFFF0;">
+            <div class="container-fluid">
+                <h1 style="font-family:'Sacramento', sans-serif; color:#ec008c !important;margin-bottom: 5%;margin-left: 1%;">
+                    Meu pedido <p:graphicImage url="resources/dafault/img/marisa.png" style="width:30%; float:right; margin-right: 7%; margin-top: -3%" />
+                </h1>                
+                <h:form>
+                    <p:tabView orientation="left">
+                        <p:tab title="Dados do cliente">
+                            <p:fieldset style="margin-bottom:20px; background-color: inherit; ">
+                                <h:panelGroup id="cliente">
+                                    <h:panelGrid class="margem" style="margin-top:10px;">
+                                        <p:outputLabel value="Cliente"/>
+                                        <p:inputText id="cliente" value="#{ajaxMB.pedido.cliente}" size="70" autocomplete="off" />
+                                    </h:panelGrid>
+                                    <br/>
+                                    <h:panelGrid class="margem">
+                                        <p:outputLabel value="Endereço"/>
+                                        <p:inputText id="endereco" value="#{ajaxMB.pedido.endereco}" size="70" style="margin-bottom: 5%;" autocomplete="off" />
+                                    </h:panelGrid>
+                                </h:panelGroup>
+                            </p:fieldset>
+
+
+                        </p:tab>
+                        <p:tab title="Adicionar produtos">
+                            <p:fieldset style="margin-bottom:20px; background-color: inherit; ">
+                                <h:panelGroup id="pedido">
+                                    <h:panelGrid class="margem" style="margin-top:10px;">
+                                        <p:outputLabel value="Produto "/>
+                                        <p:inputText id="produto" value="#{ajaxMB.item.produto}" size="70"  autocomplete="off">
+                                        </p:inputText>                                        
+                                    </h:panelGrid>
+                                    <br/>
+                                    <h:panelGrid columns="4" class="margem">
+                                        <p:outputLabel value="Quantidade " style="margin-right:5px"/>
+                                        <p:spinner id="quantidade" value="#{ajaxMB.item.quantidade}" size="13" style="margin-right:53.63%"/>
+                                        <p:outputLabel value="Preço " style="margin-right:5px"/>
+                                        <p:inputText id="preco" value="#{ajaxMB.item.preco}" size="15"  autocomplete="off"/>
+                                    </h:panelGrid>
+                                    <br/>
+                                </h:panelGroup >
+                                <p:commandButton type="submit" value="Adicionar" update="pedido,tabelaItens" action="#{ajaxMB.adicionaItem()}" style="float:right; margin-right:5%; margin-bottom: 2%;"/>
+                            </p:fieldset>
+                            <p:dataTable id="tabelaItens" value="#{ajaxMB.listaItens}" var="item" >
+
+                                <p:column headerText="Quantidade">                        
+                                    <h:outputText value="#{item.quantidade}"/>
+                                </p:column>
+
+                                <p:column headerText="Produto">                        
+                                    <h:outputText value="#{item.produto}"/>
+                                </p:column>
+
+                                <p:column headerText="Preco">                        
+                                    <h:outputText value="#{item.preco}"/>
+                                </p:column>
+
+                                <p:column headerText="Total do Item" >                        
+                                    <h:outputText value="#{item.totalPreco}"/>
+                                </p:column>
+
+                                <p:column headerText="Editar">    
+                                    <p:commandLink ajax="false" actionListener="#{ajaxMB.editar(item)}">Editar</p:commandLink>                    
+                                </p:column> 
+
+                                <p:column headerText="Excluir">
+                                    <p:commandLink id="ajax" ajax="false" actionListener="#{ajaxMB.remover(item)}">Excluir 
+                                        <p:confirm header="Confirmação" message="Você tem certeza que deseja excluir este produto do carrinho de compras?" icon="ui-icon-alert" />
+                                    </p:commandLink>   
+                                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                                        <p:commandButton update="tabelaItens,total" value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                        <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                                    </p:confirmDialog>
+                                </p:column>
+                            </p:dataTable>
+                            <br/>
+                            <p:outputLabel value="Total" style="font-size: 20px;"/>
+                            <p:outputLabel id="total" value="#{ajaxMB.pedido.total}" style="float: right; font-size: 20px;"/>
+                            <br/>
+                            <p:commandButton type="submit" update="cliente,pedido" value="Salvar" actionListener="#{ajaxMB.salvar()}" style="float: right; margin-left: 5px; background: #ade07b;" icon="ui-icon-disk"/>
+                            <p:commandButton type="submit" value="Cancelar" ajax="false" actionListener="#{ajaxMB.cancelar()}" style="float: right; background:#ff6666;" icon="ui-icon-close"/>
+                        </p:tab>
+
+                        <p:tab title="Meus pedidos">                          
+                            <p:dataTable id="tabelapedidos" value="#{ajaxMB.pedidos}" var="pedidos" >
+
+                                <p:column headerText="Cliente">                        
+                                    <h:outputText value="#{pedidos.cliente}"/>
+                                </p:column>
+
+                                <p:column headerText="Endereço">                        
+                                    <h:outputText value="#{pedidos.endereco}"/>
+                                </p:column>
+
+                                <p:column headerText="Total">                        
+                                    <h:outputText value="#{pedidos.total}"/>
+                                </p:column>
+                            </p:dataTable>
+
+                        </p:tab>
+                    </p:tabView>
+                </h:form>
+            </div>
+        </div>
+        <br />
+    </h:body>
+</html>
+
